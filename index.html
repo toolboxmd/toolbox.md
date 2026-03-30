@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>toolbox.md</title>
+  <meta name="description" content="Coworking with agents made easy. One app. Two doors.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#0a0a0a;--text:#d4d4d4;--dim:#555;--amber:#e0952a;--blue:#7aa2f7;--green:#9ece6a;--mono:'JetBrains Mono','Fira Code',monospace}
+    body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;line-height:1.7;overflow-x:hidden}
+    .page{max-width:760px;margin:0 auto;padding:2rem 2rem 1rem}
+    .frontmatter{font-size:.85rem;margin-bottom:1.5rem;white-space:pre}
+    .fm-delim{color:var(--dim)}.fm-key{color:var(--blue)}.fm-value{color:var(--text)}
+    h1{font-size:clamp(1.6rem,4vw,2.8rem);font-weight:700;margin-bottom:1.5rem}
+    #pretext-area{min-height:120px;margin-bottom:2rem;cursor:crosshair}
+    #pretext-area .line-div{height:24px;line-height:24px;white-space:nowrap;font-size:14px}
+    .section{margin-bottom:2rem}
+    h2{font-size:1.1rem;font-weight:700;margin-bottom:1rem}
+    h2::before{content:'## ';color:var(--dim);font-weight:400}
+    .tree{font-size:.85rem;white-space:pre;line-height:1.6;margin-bottom:1rem}
+    .tree-dim{color:var(--dim)}.tree-highlight{color:var(--green)}
+    .how-block{margin-bottom:1rem}
+    .how-label{color:var(--amber);font-weight:700;font-size:.85rem}
+    .how-text{color:var(--text);font-size:.85rem}
+    .how-oneliner{margin-top:1rem;font-size:.9rem;font-weight:500}
+    .sub-text{color:var(--dim);font-size:.85rem;margin-bottom:.8rem}
+    .sub-form{display:flex;max-width:420px}
+    .sub-form input{flex:1;background:#111;border:1px solid #333;border-right:none;color:var(--text);font-family:var(--mono);font-size:.85rem;padding:.7rem 1rem;outline:none}
+    .sub-form input:focus{border-color:var(--amber)}
+    .sub-form input::placeholder{color:#444}
+    .sub-form button{background:var(--amber);border:1px solid var(--amber);color:var(--bg);font-family:var(--mono);font-size:1.1rem;font-weight:700;padding:.7rem 1rem;cursor:pointer}
+    .sub-form button:hover{background:#fff;border-color:#fff}
+    .sub-ok{color:var(--amber);font-size:.85rem;display:none}
+    .hand-canvas{position:fixed;top:0;pointer-events:none;z-index:1}
+    #handLeft{left:0}
+    #handRight{right:0}
+    #pongLabel{position:fixed;z-index:10;font-family:var(--mono);font-size:clamp(1.6rem,4vw,2.8rem);font-weight:700;color:var(--text);pointer-events:none;white-space:nowrap}
+    footer{max-width:760px;margin:0 auto;text-align:center;padding:1.5rem 2rem;color:var(--dim);font-size:.7rem}
+    footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid #333}
+    footer a:hover{color:var(--amber);border-color:var(--amber)}
+  </style>
+</head>
+<body>
+
+<canvas class="hand-canvas" id="handLeft"></canvas>
+<canvas class="hand-canvas" id="handRight"></canvas>
+<div id="pongLabel"># toolbox.md</div>
+
+<div class="page">
+  <pre class="frontmatter"><span class="fm-delim">---</span>
+<span class="fm-key">name:</span> <span class="fm-value">toolbox.md</span>
+<span class="fm-key">description:</span> <span class="fm-value">"Coworking with agents made easy. One app. Two doors."</span>
+<span class="fm-key">version:</span> <span class="fm-value">0.1.0</span>
+<span class="fm-key">license:</span> <span class="fm-value">MIT</span>
+<span class="fm-key">compatibility:</span> <span class="fm-value">Works with any agent. Works with any human.</span>
+<span class="fm-delim">---</span></pre>
+
+  <h1 id="heading"># toolbox.md</h1>
+  <div id="pretext-area"></div>
+
+  <div class="section">
+    <h2>Decision tree</h2>
+    <pre class="tree"><span class="tree-dim"></span>You need a tool
+<span class="tree-dim">├─ </span>Does it exist on toolbox.md?
+<span class="tree-dim">│  ├─ </span>Yes <span class="tree-highlight">→ Use it. Your agent already knows how.</span>
+<span class="tree-dim">│  └─ </span>No <span class="tree-highlight">→ Request it. We build fast.</span>
+<span class="tree-dim">├─ </span>Want to browse tools? <span class="tree-highlight">→ toolbox.md (you're here)</span>
+<span class="tree-dim">├─ </span>Want your agent to discover tools? <span class="tree-highlight">→ toolbox.md/llms.txt</span>
+<span class="tree-dim">└─ </span>Want to build a tool? <span class="tree-dim">→ Coming soon.</span></pre>
+  </div>
+
+  <div class="section">
+    <h2>How it works</h2>
+    <div class="how-block"><span class="how-label">For humans</span><span class="how-text"> — Open toolbox.md. Browse tools. Use them through a clean UI.</span></div>
+    <div class="how-block"><span class="how-label">For agents</span><span class="how-text"> — Read toolbox.md/llms.txt. Discover tools. Call their APIs.</span></div>
+    <div class="how-oneliner">One app. Two doors. Same features behind both.</div>
+  </div>
+
+  <div class="section">
+    <h2>Get notified</h2>
+    <p class="sub-text">Tools are coming soon. Leave your email to be first.</p>
+    <form class="sub-form" action="https://formspree.io/f/mvzvalwo" method="POST" id="sf">
+      <input type="email" name="email" placeholder="you@example.com" required>
+      <button type="submit">→</button>
+    </form>
+    <div class="sub-ok" id="sok">You're in. We'll be in touch.</div>
+  </div>
+</div>
+
+<footer><a href="https://github.com/toolboxmd">github</a> · invoke@toolbox.md</footer>
+
+<script type="module">
+import { prepareWithSegments, layoutNextLine } from 'https://esm.sh/@chenglou/pretext@0.0.3';
+
+// ─── PRETEXT ───
+const area = document.getElementById('pretext-area');
+const COPY = 'A platform where agents and humans use the same tools. You open the UI. Your agent calls the API. Same features. Same quality. No compromises.';
+const FONT = '14px JetBrains Mono';
+let prepared = null;
+let mouseX = -9999, mouseY = -9999;
+
+function renderPretext() {
+  if (!prepared || !area.offsetWidth) return;
+  const rect = area.getBoundingClientRect();
+  const maxW = rect.width;
+  const lh = 24, radius = 70;
+  area.innerHTML = '';
+  let cur = { segmentIndex: 0, graphemeIndex: 0 };
+  let y = 0;
+  const pR = pongEl.getBoundingClientRect();
+
+  for (let i = 0; i < 50; i++) {
+    const lineY = rect.top + y + lh / 2;
+    let w = maxW, padLeft = 0;
+    // Mouse repel
+    const dy = mouseY - lineY;
+    if (Math.abs(dy) < radius) {
+      const dx = mouseX - rect.left;
+      const carve = Math.sqrt(radius * radius - dy * dy) * 2;
+      if (dx > carve / 2 && dx < maxW - carve / 2) { w = Math.max(maxW * 0.25, dx - carve / 2); }
+      else if (dx >= 0 && dx <= carve) { w = Math.max(maxW * 0.25, maxW - carve); padLeft = Math.min(carve, maxW * 0.6); }
+    }
+    // Pong repel
+    if (!pong.docked) {
+      const pdy = (pR.top + pR.height / 2) - lineY;
+      if (Math.abs(pdy) < pR.height) {
+        const pdx = pR.left - rect.left;
+        if (pdx > 0 && pdx < maxW) w = Math.min(w, Math.max(maxW * 0.2, pdx - 10));
+      }
+    }
+    const line = layoutNextLine(prepared, cur, w);
+    if (!line) break;
+    const div = document.createElement('div');
+    div.className = 'line-div';
+    div.textContent = line.text;
+    if (padLeft > 0) div.style.paddingLeft = padLeft + 'px';
+    area.appendChild(div);
+    cur = line.end;
+    y += lh;
+  }
+}
+
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+area.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; });
+
+document.fonts.ready.then(() => {
+  setTimeout(() => { prepared = prepareWithSegments(COPY, FONT); renderPretext(); }, 100);
+});
+
+// ─── ASCII HANDS ───
+// Calculate available space for hands: space between viewport edge and .page content
+function getHandSpace() {
+  const page = document.querySelector('.page');
+  const pageRect = page.getBoundingClientRect();
+  const leftSpace = pageRect.left;         // pixels available on left
+  const rightSpace = window.innerWidth - pageRect.right; // pixels available on right
+  return { leftSpace, rightSpace };
+}
+
+async function loadHand(canvasId, jsonUrl) {
+  const res = await fetch(jsonUrl);
+  const data = await res.json();
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const isLeft = canvasId === 'handLeft';
+
+  let particles = [];
+  let charW, charH, artW, yOffset, fontSize;
+
+  function sizing() {
+    const dpr = window.devicePixelRatio || 1;
+    const { leftSpace, rightSpace } = getHandSpace();
+    const space = isLeft ? leftSpace : rightSpace;
+
+    // Scale ASCII to fit available side space (use 95% of it)
+    charW = Math.max(2, (space * 0.95) / data.w);
+    charH = charW * 1.8;
+    artW = data.w * charW;
+    const artH = data.h * charH;
+    fontSize = Math.max(2, charW * 1.3);
+
+    canvas.width = Math.ceil(artW * dpr);
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = Math.ceil(artW) + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    yOffset = (window.innerHeight - artH) / 2;
+
+    // Build/rebuild particles
+    particles = [];
+    for (const [y, chars] of data.l) {
+      for (const [x, ch, r, g, b] of chars) {
+        const homeX = x * charW;
+        const homeY = yOffset + y * charH;
+        particles.push({ homeX, homeY, x: homeX, y: homeY, vx: 0, vy: 0, ch, r, g, b });
+      }
+    }
+  }
+
+  sizing();
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const canvasRect = canvas.getBoundingClientRect();
+    const repelRadius = 80;
+    const spring = 0.08;
+    const damping = 0.85;
+
+    ctx.font = fontSize + 'px JetBrains Mono';
+    ctx.textBaseline = 'top';
+
+    for (const p of particles) {
+      let fx = 0, fy = 0;
+      // Mouse repel
+      const mLX = mouseX - canvasRect.left, mLY = mouseY - canvasRect.top;
+      const mdx = p.x - mLX, mdy = p.y - mLY;
+      const mD = Math.sqrt(mdx * mdx + mdy * mdy);
+      if (mD < repelRadius && mD > 0) { const f = (repelRadius - mD) / repelRadius * 8; fx += (mdx / mD) * f; fy += (mdy / mD) * f; }
+      // Pong repel
+      if (!pong.docked) {
+        const pCX = pong.x + pong.w / 2 - canvasRect.left, pCY = pong.y + pong.h / 2 - canvasRect.top;
+        const pdx = p.x - pCX, pdy = p.y - pCY;
+        const pD = Math.sqrt(pdx * pdx + pdy * pdy);
+        if (pD < 120 && pD > 0) { const f = (120 - pD) / 120 * 12; fx += (pdx / pD) * f; fy += (pdy / pD) * f; }
+      }
+      // Spring
+      fx += (p.homeX - p.x) * spring;
+      fy += (p.homeY - p.y) * spring;
+      p.vx = (p.vx + fx) * damping;
+      p.vy = (p.vy + fy) * damping;
+      p.x += p.vx;
+      p.y += p.vy;
+      ctx.fillStyle = `rgb(${p.r},${p.g},${p.b})`;
+      ctx.fillText(p.ch, p.x, p.y);
+    }
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', sizing);
+  animate();
+}
+
+loadHand('handLeft', 'hand-left.json');
+loadHand('handRight', 'hand-right.json');
+
+// ─── PONG ───
+const pongEl = document.getElementById('pongLabel');
+const headingEl = document.getElementById('heading');
+const pong = { x: 0, y: 0, w: 0, h: 0, vx: 2.2, vy: 1.5, docked: true, startTime: 0 };
+
+function initPong() {
+  const rect = headingEl.getBoundingClientRect();
+  pong.x = rect.left;
+  pong.y = rect.top + window.scrollY;
+  pong.w = rect.width;
+  pong.h = rect.height;
+  pongEl.style.left = pong.x + 'px';
+  pongEl.style.top = pong.y + 'px';
+  pongEl.style.fontSize = getComputedStyle(headingEl).fontSize;
+  pong.startTime = performance.now();
+}
+
+function updatePong(t) {
+  if (pong.docked) {
+    if (t - pong.startTime > 500) {
+      pong.docked = false;
+      headingEl.style.visibility = 'hidden';
+      pongEl.style.position = 'fixed';
+      const r = pongEl.getBoundingClientRect();
+      pong.y = r.top; pong.w = r.width; pong.h = r.height;
+    }
+    return;
+  }
+  pong.x += pong.vx; pong.y += pong.vy;
+  const W = window.innerWidth, H = window.innerHeight;
+  if (pong.x <= 0) { pong.x = 0; pong.vx = Math.abs(pong.vx); }
+  if (pong.x + pong.w >= W) { pong.x = W - pong.w; pong.vx = -Math.abs(pong.vx); }
+  if (pong.y <= 0) { pong.y = 0; pong.vy = Math.abs(pong.vy); }
+  if (pong.y + pong.h >= H) { pong.y = H - pong.h; pong.vy = -Math.abs(pong.vy); }
+  pongEl.style.left = pong.x + 'px';
+  pongEl.style.top = pong.y + 'px';
+}
+
+function pongLoop(t) {
+  updatePong(t);
+  if (!pong.docked) renderPretext();
+  requestAnimationFrame(pongLoop);
+}
+
+window.addEventListener('load', () => { initPong(); requestAnimationFrame(pongLoop); });
+
+// ─── Subscribe ───
+document.getElementById('sf').addEventListener('submit', async e => {
+  e.preventDefault();
+  try {
+    await fetch(e.target.action, { method: 'POST', body: new FormData(e.target), headers: { Accept: 'application/json' } });
+    e.target.style.display = 'none';
+    document.getElementById('sok').style.display = 'block';
+  } catch { e.target.submit(); }
+});
+</script>
+
+</body>
+</html>
