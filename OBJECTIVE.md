@@ -1,32 +1,29 @@
 # Objective
 
-Make AgentsMD v4.0.3 the first released Project represented end to end on
-toolbox.md, proving the public Directory and machine-discovery part of
-ToolboxMD's federated distribution model.
+Establish and prove ToolboxMD Delivery System v1 so independently versioned
+ToolboxMD Projects can move from qualified work to a released, usable
+capability and an accurate public representation through one coherent,
+evidence-backed lifecycle, while preserving each Project's ownership and
+keeping every delivery state explicit.
 
 The Objective is complete when:
 
-- An accepted ADR records the approved one-way publication boundaries between
-  Project repositories, ToolboxMD Marketplace, toolbox.md, and independently
-  deployed Apps.
-- `/projects/agentsmd` presents canonical outcome, capability, Skill,
-  compatibility, documentation, installation, and exact release-provenance
-  information derived from the released AgentsMD Project Record.
-- The ToolboxMD Directory identifies AgentsMD as both a Project and an Agent
-  Module without presenting it as an App or treating its Skills as separate
-  Projects.
-- `/llms.txt` returns real machine-readable text instead of the landing-page
-  HTML and includes the canonical AgentsMD Project route.
-- `/.well-known/agent-skills/index.json` exposes the released AgentsMD Skills as
-  a Vercel-compatible discovery surface without presenting that extension as
-  part of the Agent Skills standard.
-- Product-name, unnamed-outcome, capability, workflow, and negative Agent Search
-  Optimization queries are tested against the public page and machine-readable
-  surfaces.
-- The deployed public routes are Live Verified for response status, content
-  type, release provenance, navigation, and machine-readable parsing.
+- An approved cross-Project contract and Project registry coordinate portable
+  workflow policy with small Project-owned delivery profiles without
+  duplicating authoritative Project truth.
+- One Agent Module and one independently deployed App complete the lifecycle
+  through their real distribution or deployment, installation or activation,
+  Live Verification, and canonical website surfaces.
+- Routine eligible transitions complete automatically. Invalid or failed
+  transitions preserve the last-known-good distributed, deployed, installed,
+  and published state and produce actionable evidence.
+- Parallel implementation, asynchronous review, documentation, CI, release,
+  and website publication can proceed without losing dependent work or
+  allowing the delivered capability and its public representation to drift.
+- A later ToolboxMD Project can adopt the system by declaring its owned
+  differences rather than redesigning the shared workflow.
 
-Migrating every ToolboxMD Project, changing the AgentsMD v4.0.3 release,
-implementing Marketplace host adapters, submitting provider listings, building
-the bootstrap installer, and changing private App access are outside this
-Objective.
+Migrating every existing ToolboxMD Project, centralizing Project-owned
+credentials or runtime ownership, replacing provider-owned approval decisions,
+and executing the full SEO optimization program are outside this Objective.
+Delivery System v1 preserves the extension point for later SEO work.
