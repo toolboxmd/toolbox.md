@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.2] - 2026-09-02
+
+### Changed
+
+- Make Delivery System v1 the current Objective
+
 ## [0.1.1] - 2026-08-30
 
 ### Changed
