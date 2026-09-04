@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://toolbox.md/schemas/website-parity-receipt-v1.schema.json",
+  "title": "ToolboxMD Website Parity Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema",
+    "state",
+    "project",
+    "distribution",
+    "website",
+    "documentation",
+    "publicLinks",
+    "discovery",
+    "websiteDeployment",
+    "liveVerification",
+    "seoImpact"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://toolbox.md/schemas/website-parity-receipt-v1.schema.json"
+    },
+    "schema": {"const": 1},
+    "state": {"enum": ["candidate", "live-verified"]},
+    "project": {"$ref": "#/$defs/project"},
+    "distribution": {"$ref": "#/$defs/distribution"},
+    "website": {"$ref": "#/$defs/website"},
+    "documentation": {"$ref": "#/$defs/documentation"},
+    "publicLinks": {"$ref": "#/$defs/publicLinks"},
+    "discovery": {"$ref": "#/$defs/discovery"},
+    "websiteDeployment": {"$ref": "#/$defs/websiteDeployment"},
+    "liveVerification": {"$ref": "#/$defs/liveVerification"},
+    "seoImpact": {"$ref": "#/$defs/seoImpact"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"state": {"const": "candidate"}}},
+      "then": {
+        "properties": {
+          "websiteDeployment": {"properties": {"state": {"const": "candidate"}}},
+          "liveVerification": {"properties": {"state": {"const": "pending"}}}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"state": {"const": "live-verified"}}},
+      "then": {
+        "properties": {
+          "websiteDeployment": {
+            "properties": {"state": {"enum": ["current", "deployed"]}}
+          },
+          "liveVerification": {"properties": {"state": {"const": "passed"}}}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "release": {
+      "type": "string",
+      "pattern": "^v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+    },
+    "route": {
+      "type": "string",
+      "pattern": "^/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*$"
+    },
+    "httpsUrl": {"type": "string", "pattern": "^https://"},
+    "nullableHttpsUrl": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/httpsUrl"}
+      ]
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "repository",
+        "version",
+        "release",
+        "sourceSha",
+        "projectRecordSha256"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "kind": {"enum": ["agent-module", "app"]},
+        "repository": {"$ref": "#/$defs/repository"},
+        "version": {"$ref": "#/$defs/semver"},
+        "release": {"$ref": "#/$defs/release"},
+        "sourceSha": {"$ref": "#/$defs/sha"},
+        "projectRecordSha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "repository", "version", "release", "sourceSha", "artifact"],
+      "properties": {
+        "type": {"enum": ["marketplace", "project-release", "project-deployment"]},
+        "repository": {"$ref": "#/$defs/repository"},
+        "version": {"$ref": "#/$defs/semver"},
+        "release": {"$ref": "#/$defs/release"},
+        "sourceSha": {"$ref": "#/$defs/sha"},
+        "artifact": {"$ref": "#/$defs/artifact"}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "sha256", "scope"],
+      "properties": {
+        "algorithm": {"const": "sha256-tree-v1"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "scope": {"type": "string", "minLength": 1}
+      }
+    },
+    "website": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "sourceSha",
+        "baseUrl",
+        "route",
+        "canonicalUrl",
+        "manifestSha256"
+      ],
+      "properties": {
+        "repository": {"$ref": "#/$defs/repository"},
+        "sourceSha": {"$ref": "#/$defs/sha"},
+        "baseUrl": {"$ref": "#/$defs/httpsUrl"},
+        "route": {"$ref": "#/$defs/route"},
+        "canonicalUrl": {"$ref": "#/$defs/httpsUrl"},
+        "manifestSha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "sources"],
+      "properties": {
+        "state": {"const": "released"},
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/documentationSource"}
+        }
+      }
+    },
+    "documentationSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "url"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "url": {"$ref": "#/$defs/httpsUrl"}
+      }
+    },
+    "publicLinks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project",
+        "projectRelease",
+        "distribution",
+        "distributionRelease",
+        "website"
+      ],
+      "properties": {
+        "project": {"$ref": "#/$defs/httpsUrl"},
+        "projectRelease": {"$ref": "#/$defs/httpsUrl"},
+        "distribution": {"$ref": "#/$defs/httpsUrl"},
+        "distributionRelease": {"$ref": "#/$defs/httpsUrl"},
+        "website": {"$ref": "#/$defs/httpsUrl"}
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "llmsTxt",
+        "skillsIndex",
+        "compatibility",
+        "coreAgentSkillsSpecificationClaimed",
+        "skillCount"
+      ],
+      "properties": {
+        "llmsTxt": {"$ref": "#/$defs/httpsUrl"},
+        "skillsIndex": {"$ref": "#/$defs/httpsUrl"},
+        "compatibility": {"type": "string", "minLength": 1},
+        "coreAgentSkillsSpecificationClaimed": {"const": false},
+        "skillCount": {"type": "integer", "minimum": 1}
+      }
+    },
+    "websiteDeployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "project", "state", "deploymentUrl"],
+      "properties": {
+        "provider": {"const": "cloudflare-pages"},
+        "project": {"const": "toolbox-md"},
+        "state": {"enum": ["candidate", "current", "deployed"]},
+        "deploymentUrl": {"$ref": "#/$defs/nullableHttpsUrl"}
+      }
+    },
+    "liveVerification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "observedAt", "runUrl", "checks"],
+      "properties": {
+        "state": {"enum": ["pending", "passed"]},
+        "observedAt": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "format": "date-time"}
+          ]
+        },
+        "runUrl": {"$ref": "#/$defs/nullableHttpsUrl"},
+        "checks": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/liveCheck"}
+        }
+      }
+    },
+    "liveCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "url", "state"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "url": {"$ref": "#/$defs/httpsUrl"},
+        "contentType": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "state": {"const": "passed"}
+      }
+    },
+    "seoImpact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "fullProgram", "changes"],
+      "properties": {
+        "scope": {"type": "string", "minLength": 1},
+        "fullProgram": {"const": "deferred"},
+        "changes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

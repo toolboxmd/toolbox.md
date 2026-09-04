@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>toolbox.md</title>
   <meta name="description" content="Coworking with agents made easy. One app. Two doors.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://toolbox.md/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
@@ -26,6 +28,11 @@
     .how-label{color:var(--amber);font-weight:700;font-size:.85rem}
     .how-text{color:var(--text);font-size:.85rem}
     .how-oneliner{margin-top:1rem;font-size:.9rem;font-weight:500}
+    .project-card{display:block;border:1px solid #333;background:#111;padding:1rem;text-decoration:none}
+    .project-card:hover{border-color:var(--amber)}
+    .project-name{color:var(--green);font-weight:700}
+    .project-version{color:var(--amber);font-size:.8rem;margin-left:.4rem}
+    .project-outcome{display:block;color:var(--text);font-size:.85rem;margin-top:.4rem}
     .sub-text{color:var(--dim);font-size:.85rem;margin-bottom:.8rem}
     .sub-form{display:flex;max-width:420px}
     .sub-form input{flex:1;background:#111;border:1px solid #333;border-right:none;color:var(--text);font-family:var(--mono);font-size:.85rem;padding:.7rem 1rem;outline:none}
@@ -73,14 +80,22 @@
 
   <div class="section">
     <h2>How it works</h2>
-    <div class="how-block"><span class="how-label">For humans</span><span class="how-text"> — Open toolbox.md. Browse tools. Use them through a clean UI.</span></div>
-    <div class="how-block"><span class="how-label">For agents</span><span class="how-text"> — Read toolbox.md/llms.txt. Discover tools. Call their APIs.</span></div>
+    <div class="how-block"><span class="how-label">For humans</span><span class="how-text">: Open toolbox.md. Browse tools. Use them through a clean UI.</span></div>
+    <div class="how-block"><span class="how-label">For agents</span><span class="how-text">: Read toolbox.md/llms.txt. Discover tools. Call their APIs.</span></div>
     <div class="how-oneliner">One app. Two doors. Same features behind both.</div>
   </div>
 
   <div class="section">
+    <h2>Projects</h2>
+    <a class="project-card" href="@@AGENTSMD_ROUTE@@">
+      <span class="project-name">AgentsMD</span><span class="project-version">v@@AGENTSMD_VERSION@@</span>
+      <span class="project-outcome">@@AGENTSMD_OUTCOME@@</span>
+    </a>
+  </div>
+
+  <div class="section">
     <h2>Get notified</h2>
-    <p class="sub-text">Tools are coming soon. Leave your email to be first.</p>
+    <p class="sub-text">New ToolboxMD Projects are coming. Leave your email for release updates.</p>
     <form class="sub-form" action="https://formspree.io/f/mvzvalwo" method="POST" id="sf">
       <input type="email" name="email" placeholder="you@example.com" required>
       <button type="submit">→</button>
@@ -89,7 +104,7 @@
   </div>
 </div>
 
-<footer><a href="https://github.com/toolboxmd">github</a> · invoke@toolbox.md</footer>
+<footer><a href="https://github.com/toolboxmd">github</a> · <span aria-label="invoke at toolbox dot md">invoke<span aria-hidden="true">@</span>toolbox.md</span></footer>
 
 <script type="module">
 import { prepareWithSegments, layoutNextLine } from 'https://esm.sh/@chenglou/pretext@0.0.3';
