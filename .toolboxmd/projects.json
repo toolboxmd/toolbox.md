@@ -1,0 +1,27 @@
+{
+  "$schema": "https://toolbox.md/schemas/project-registry-v1.schema.json",
+  "schema": 1,
+  "projects": [
+    {
+      "id": "agentsmd",
+      "repository": "toolboxmd/agentsmd",
+      "kind": "agent-module",
+      "projectRecordPath": ".toolboxmd/project.json",
+      "deliveryProfilePath": ".toolboxmd/delivery.json",
+      "distribution": {
+        "type": "marketplace",
+        "repository": "toolboxmd/marketplace",
+        "recordPath": "plugins/agentsmd/SOURCE.json",
+        "catalogPath": "catalog.json"
+      },
+      "website": {
+        "repository": "toolboxmd/toolbox.md",
+        "baseUrl": "https://toolbox.md",
+        "route": "/agentsmd"
+      },
+      "review": {
+        "reviewedMajor": 8
+      }
+    }
+  ]
+}

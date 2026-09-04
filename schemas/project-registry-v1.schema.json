@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://toolbox.md/schemas/project-registry-v1.schema.json",
+  "title": "ToolboxMD Project Registry v1",
+  "description": "Website-owned mappings to Project and distribution truth.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema", "projects"],
+  "properties": {
+    "$schema": {
+      "const": "https://toolbox.md/schemas/project-registry-v1.schema.json"
+    },
+    "schema": {
+      "const": 1
+    },
+    "projects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/project"
+      }
+    }
+  },
+  "$defs": {
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "repository",
+        "kind",
+        "projectRecordPath",
+        "deliveryProfilePath",
+        "distribution",
+        "website",
+        "review"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "repository": {
+          "$ref": "#/$defs/repository"
+        },
+        "kind": {
+          "enum": ["agent-module", "app"]
+        },
+        "projectRecordPath": {
+          "$ref": "#/$defs/path"
+        },
+        "deliveryProfilePath": {
+          "$ref": "#/$defs/path"
+        },
+        "distribution": {
+          "$ref": "#/$defs/distribution"
+        },
+        "website": {
+          "$ref": "#/$defs/website"
+        },
+        "review": {
+          "$ref": "#/$defs/review"
+        }
+      }
+    },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "repository", "recordPath"],
+      "allOf": [
+        {
+          "if": {
+            "properties": {"type": {"const": "marketplace"}},
+            "required": ["type"]
+          },
+          "then": {"required": ["catalogPath"]}
+        }
+      ],
+      "properties": {
+        "type": {
+          "enum": ["marketplace", "project-release", "project-deployment"]
+        },
+        "repository": {
+          "$ref": "#/$defs/repository"
+        },
+        "recordPath": {
+          "$ref": "#/$defs/path"
+        },
+        "catalogPath": {
+          "$ref": "#/$defs/path"
+        }
+      }
+    },
+    "website": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "baseUrl", "route"],
+      "properties": {
+        "repository": {
+          "$ref": "#/$defs/repository"
+        },
+        "baseUrl": {
+          "type": "string",
+          "pattern": "^https://[^/]+$"
+        },
+        "route": {
+          "type": "string",
+          "pattern": "^/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*$"
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewedMajor"],
+      "properties": {
+        "reviewedMajor": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

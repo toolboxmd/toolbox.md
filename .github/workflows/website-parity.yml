@@ -1,0 +1,186 @@
+name: Publish website parity
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/website-parity.yml
+      - .toolboxmd/projects.json
+      - schemas/**
+      - scripts/site_pipeline.py
+      - templates/**
+      - tests/test_site_pipeline.py
+      - index.html
+      - ascii.json
+      - hand-left.json
+      - hand-right.json
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/website-parity.yml
+      - .toolboxmd/projects.json
+      - schemas/**
+      - scripts/site_pipeline.py
+      - templates/**
+      - index.html
+      - ascii.json
+      - hand-left.json
+      - hand-right.json
+      - VERSION
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: toolbox-website-parity-production
+  cancel-in-progress: false
+
+jobs:
+  website-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the exact toolbox.md candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.13"
+
+      - name: Run deterministic website pipeline tests
+        run: python3 -m unittest tests.test_site_pipeline -v
+
+      - name: Resolve the latest published Marketplace release
+        id: marketplace
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          marketplace_tag="$(gh api repos/toolboxmd/marketplace/releases/latest --jq .tag_name)"
+          if ! printf '%s\n' "$marketplace_tag" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Invalid Marketplace release tag: $marketplace_tag" >&2
+            exit 1
+          fi
+          printf 'tag=%s\n' "$marketplace_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Check out the exact Marketplace release
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          repository: toolboxmd/marketplace
+          ref: ${{ steps.marketplace.outputs.tag }}
+          fetch-depth: 0
+          path: .inputs/marketplace
+          persist-credentials: false
+
+      - name: Resolve the exact AgentsMD release input
+        id: agentsmd
+        run: |
+          python3 scripts/site_pipeline.py release-inputs \
+            --marketplace-root .inputs/marketplace \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Check out the exact AgentsMD source commit
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          repository: toolboxmd/agentsmd
+          ref: ${{ steps.agentsmd.outputs.source_sha }}
+          fetch-depth: 0
+          path: .inputs/agentsmd
+          persist-credentials: false
+
+      - name: Build and validate the isolated Website Candidate
+        id: build
+        run: |
+          python3 scripts/site_pipeline.py build \
+            --project-root . \
+            --agentsmd-root .inputs/agentsmd \
+            --marketplace-root .inputs/marketplace \
+            --output dist/site \
+            --receipt dist/website-parity-candidate.json
+
+      - name: Check pilot completion gates
+        if: github.event_name != 'pull_request'
+        id: gates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          agentsmd_state="$(gh api repos/toolboxmd/agentsmd/issues/57 --jq .state)"
+          marketplace_state="$(gh api repos/toolboxmd/marketplace/issues/17 --jq .state)"
+          ready=false
+          if test "$agentsmd_state" = closed && test "$marketplace_state" = closed; then
+            ready=true
+          fi
+          {
+            printf 'ready=%s\n' "$ready"
+            printf 'agentsmd=%s\n' "$agentsmd_state"
+            printf 'marketplace=%s\n' "$marketplace_state"
+          } >> "$GITHUB_OUTPUT"
+          {
+            printf '### Pilot gates\n\n'
+            printf -- '- toolboxmd/agentsmd#57: `%s`\n' "$agentsmd_state"
+            printf -- '- toolboxmd/marketplace#17: `%s`\n' "$marketplace_state"
+            printf -- '- production eligible: `%s`\n' "$ready"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Compare the exact candidate with production
+        if: steps.gates.outputs.ready == 'true'
+        id: live
+        run: |
+          python3 scripts/site_pipeline.py live-status \
+            --output dist/site \
+            --base-url https://toolbox.md \
+            --report dist/live-status.json \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Deploy the validated candidate to Cloudflare Pages
+        if: >-
+          steps.gates.outputs.ready == 'true' &&
+          (github.event_name != 'schedule' || steps.live.outputs.stale == 'true')
+        id: deploy
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.129.0"
+          command: >-
+            pages deploy dist/site
+            --project-name=toolbox-md
+            --branch=main
+            --commit-hash=${{ github.sha }}
+            --commit-message="Website parity ${{ github.sha }}"
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Live Verify the exact public representation
+        if: >-
+          steps.gates.outputs.ready == 'true' &&
+          (steps.deploy.outcome == 'success' || steps.live.outputs.stale == 'false')
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 scripts/site_pipeline.py verify-live \
+            --output dist/site \
+            --candidate-receipt dist/website-parity-candidate.json \
+            --receipt dist/website-parity-live.json \
+            --base-url https://toolbox.md \
+            --deployment-url "$DEPLOYMENT_URL" \
+            --run-url "$RUN_URL"
+
+      - name: Upload Website Parity Receipts
+        if: always() && steps.build.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: website-parity-${{ github.run_id }}
+          path: |
+            dist/website-parity-candidate.json
+            dist/website-parity-live.json
+            dist/live-status.json
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0] - 2026-09-04
+
+### Added
+
+- Add registry-driven AgentsMD website parity pipeline
+
 ## [0.1.2] - 2026-09-02
 
 ### Changed
