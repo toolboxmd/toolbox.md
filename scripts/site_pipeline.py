@@ -1050,6 +1050,29 @@ def validate_output(output: Path, receipt: dict[str, Any]) -> dict[str, Any]:
     manifest = read_json(manifest_path)
     if not isinstance(manifest, dict) or manifest.get("schema") != 1:
         raise PipelineError("Generated site manifest is invalid")
+    projects = manifest.get("projects")
+    if not isinstance(projects, list) or any(not isinstance(entry, dict) for entry in projects):
+        raise PipelineError("Generated site manifest Agent entries must be objects in a list")
+    agent_entries = [entry for entry in projects if entry.get("id") == receipt["project"]["id"]]
+    if len(agent_entries) != 1:
+        raise PipelineError("Generated site manifest must contain exactly one required Agent entry")
+    expected_agent = {
+        "id": receipt["project"]["id"],
+        "version": receipt["project"]["version"],
+        "sourceSha": receipt["project"]["sourceSha"],
+        "projectRecordSha256": receipt["project"]["projectRecordSha256"],
+        "distributionSha": receipt["distribution"]["sourceSha"],
+        "distributionArtifactSha256": receipt["distribution"]["artifact"]["sha256"],
+    }
+    for field, expected in expected_agent.items():
+        if not isinstance(agent_entries[0].get(field), str) or agent_entries[0][field] != expected:
+            raise PipelineError(f"Generated site manifest Agent identity mismatch: {field}")
+    toolbox = manifest.get("toolbox")
+    if not isinstance(toolbox, dict):
+        raise PipelineError("Generated site manifest toolbox identity must be an object")
+    for field in ("repository", "sourceSha"):
+        if not isinstance(toolbox.get(field), str) or toolbox[field] != receipt["website"][field]:
+            raise PipelineError(f"Generated site manifest toolbox identity mismatch: {field}")
     expected_files = site_files(output)
     if manifest.get("files") != expected_files:
         raise PipelineError("Generated site manifest does not match website files")

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.3] - 2026-09-07
+
+### Changed
+
+- Bind website manifest Agent and toolbox identity to the parity receipt.
+
 ## [0.3.2] - 2026-09-07
 
 ### Changed

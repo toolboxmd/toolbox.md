@@ -23,6 +23,7 @@ from site_pipeline import (  # noqa: E402
     live_status,
     safe_file,
     validate_registry,
+    validate_output,
     verify_live,
 )
 
@@ -364,6 +365,66 @@ class SitePipelineTest(unittest.TestCase):
                 sorted(member.name for member in archive.getmembers() if member.isfile()),
             )
             self.assertFalse(any(member.pax_headers for member in archive.getmembers()))
+
+    def test_manifest_agent_identity_is_bound_to_receipt(self) -> None:
+        receipt = self.build()
+        manifest_path = self.output / "site-manifest.json"
+        original = json.loads(manifest_path.read_text())
+        for field in (
+            "id", "version", "sourceSha", "projectRecordSha256",
+            "distributionSha", "distributionArtifactSha256",
+        ):
+            for mode in ("mismatch", "missing", "malformed"):
+                with self.subTest(field=field, mode=mode):
+                    manifest = json.loads(json.dumps(original))
+                    entry = manifest["projects"][0]
+                    if mode == "missing":
+                        del entry[field]
+                    else:
+                        entry[field] = "0" * 64 if mode == "mismatch" else []
+                    write_json(manifest_path, manifest)
+                    receipt["website"]["manifestSha256"] = sha256(manifest_path)
+                    with self.assertRaisesRegex(PipelineError, "manifest.*Agent"):
+                        validate_output(self.output, receipt)
+
+    def test_manifest_requires_one_well_formed_agent_entry(self) -> None:
+        receipt = self.build()
+        manifest_path = self.output / "site-manifest.json"
+        original = json.loads(manifest_path.read_text())
+        entry = original["projects"][0]
+        for projects in (None, {}, [], [None], [entry, None], [entry, entry]):
+            with self.subTest(projects=projects):
+                manifest = {**original, "projects": projects}
+                write_json(manifest_path, manifest)
+                receipt["website"]["manifestSha256"] = sha256(manifest_path)
+                with self.assertRaisesRegex(PipelineError, "manifest.*Agent"):
+                    validate_output(self.output, receipt)
+        del manifest["projects"]
+        write_json(manifest_path, manifest)
+        receipt["website"]["manifestSha256"] = sha256(manifest_path)
+        with self.assertRaisesRegex(PipelineError, "manifest.*Agent"):
+            validate_output(self.output, receipt)
+
+    def test_manifest_toolbox_identity_is_bound_to_receipt(self) -> None:
+        receipt = self.build()
+        manifest_path = self.output / "site-manifest.json"
+        original = json.loads(manifest_path.read_text())
+        variants = [None, [], {}, {**original["toolbox"], "repository": "other/repo"},
+                    {**original["toolbox"], "sourceSha": "0" * 40},
+                    {**original["toolbox"], "repository": []},
+                    {**original["toolbox"], "sourceSha": None}]
+        for toolbox in variants:
+            with self.subTest(toolbox=toolbox):
+                manifest = {**original, "toolbox": toolbox}
+                write_json(manifest_path, manifest)
+                receipt["website"]["manifestSha256"] = sha256(manifest_path)
+                with self.assertRaisesRegex(PipelineError, "manifest.*toolbox"):
+                    validate_output(self.output, receipt)
+        del manifest["toolbox"]
+        write_json(manifest_path, manifest)
+        receipt["website"]["manifestSha256"] = sha256(manifest_path)
+        with self.assertRaisesRegex(PipelineError, "manifest.*toolbox"):
+            validate_output(self.output, receipt)
 
     def test_candidate_is_deterministic(self) -> None:
         first = self.base / "first"
