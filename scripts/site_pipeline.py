@@ -330,6 +330,65 @@ def tree_digest(entries: list[dict[str, Any]]) -> str:
     return digest.hexdigest()
 
 
+def render_source_markdown(content: str) -> str:
+    """Render the small released host guide safely, without executing source HTML."""
+    def inline(value: str) -> str:
+        # Escape first and allow only HTTPS links from the released guide.
+        value = html.escape(value)
+        value = re.sub(r"\[([^\]]+)\]\((https://[^\s)]+)\)", r'<a href="\2">\1</a>', value)
+        value = re.sub(r"`([^`]+)`", r"<code>\1</code>", value)
+        return re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", value)
+
+    blocks: list[str] = []
+    for block in re.split(r"(```[^\n]*\n.*?\n```)", content, flags=re.DOTALL):
+        if block.startswith("```"):
+            code = block.split("\n", 1)[1].rsplit("\n```", 1)[0]
+            blocks.append('<pre class="install"><code>' + html.escape(code) + '</code></pre>')
+            continue
+        for paragraph in re.split(r"\n\s*\n", block.strip()):
+            if not paragraph:
+                continue
+            blocks.append("<p>" + inline(" ".join(paragraph.splitlines())) + "</p>")
+    return "\n".join(blocks)
+
+
+def render_opencode_section(resolved: dict[str, Any]) -> str:
+    content = resolved.get("opencodeDocumentation")
+    if content is None:
+        return ""
+    # The Project Record declaration is the opt-in. The exact released guide
+    # owns compatibility, commands, shared Skills, ownership and host limits.
+    parts = content.strip().split("\n\n", 2)
+    if len(parts) != 3 or parts[0] != "# OpenCode host" or not parts[1].strip():
+        raise PipelineError("AgentsMD OpenCode documentation has no compatibility introduction")
+    sections = re.split(r"^## (.+)\n", parts[2], flags=re.MULTILINE)
+    sections = dict(zip(sections[1::2], sections[2::2]))
+    try:
+        instructions = sections["Instructions and Skills"].strip().split("\n\n")
+        setup = sections["Install, update, status and uninstall"].strip()
+        limits = sections["Proof and remaining host differences"].strip().split("\n\n")[-1]
+    except KeyError as error:
+        raise PipelineError("AgentsMD OpenCode documentation is missing a required section") from error
+    setup_blocks = re.split(r"(```sh\n.*?\n```)", setup, maxsplit=1, flags=re.DOTALL)
+    if len(instructions) < 2 or len(setup_blocks) != 3 or not limits:
+        raise PipelineError("AgentsMD OpenCode documentation is missing setup or host details")
+    excerpt = "\n\n".join(instructions + [setup_blocks[0].strip(), setup_blocks[1], limits])
+    source_repo = repository_url(resolved["project"]["repository"])
+    url = f"{source_repo}/blob/{resolved['sourceSha']}/docs/opencode.md"
+    return (
+        '<section aria-labelledby="opencode-host"><h2 id="opencode-host">OpenCode CLI</h2>\n'
+        + render_source_markdown(parts[1])
+        + '<p>This CLI integration is separate from native plugin distribution'
+        + (' for ' + html.escape(', '.join(resolved['nativePluginHosts']))
+           if resolved['nativePluginHosts'] else '') + '. '
+        + '<a href="' + html.escape(url, quote=True)
+        + '">Read the exact released OpenCode guide</a>.</p>\n'
+        + '<details><summary>Released setup, shared Skills and host limits</summary>\n'
+        + render_source_markdown(excerpt)
+        + '\n</details></section>'
+    )
+
+
 def deterministic_tar_gz(files: list[tuple[str, bytes, int]]) -> bytes:
     raw = io.BytesIO()
     # The Vercel skills CLI reads the standard ustar name and prefix fields but
@@ -605,6 +664,11 @@ def resolve_agentsmd(
         "documentationPaths": documentation_paths,
         "codexInstallCommands": codex_install_commands,
         "codexInstallSource": codex_install_source,
+        "opencodeDocumentation": dict(documentation).get("docs/opencode.md"),
+        "nativePluginHosts": [
+            {"codex": "Codex", "claude-code": "Claude Code", "grok-build": "Grok"}.get(host, host)
+            for host in facts["delivery"]
+        ],
         "skills": skills,
     }
 
@@ -747,6 +811,7 @@ def render_agentsmd_page(resolved: dict[str, Any], template_path: Path) -> str:
         skill_count=str(len(resolved["skills"])),
         skill_cards="\n".join(cards),
         install_commands=html.escape(resolved["codexInstallCommands"]),
+        opencode_section=render_opencode_section(resolved),
         installation_url=html.escape(
             f"{source_repo}/blob/{resolved['sourceSha']}/"
             f"{urllib.parse.quote(resolved['codexInstallSource'])}",

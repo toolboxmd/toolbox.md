@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.1] - 2026-09-07
+
+### Changed
+
+- Represent released OpenCode host support from authoritative documentation
+
 ## [0.3.0] - 2026-09-07
 
 ### Added
