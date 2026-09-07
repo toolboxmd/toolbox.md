@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.2] - 2026-09-07
+
+### Changed
+
+- Register use-grok through its owned delivery profile and existing public references.
+
 ## [0.3.1] - 2026-09-07
 
 ### Changed

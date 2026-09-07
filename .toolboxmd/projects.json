@@ -42,6 +42,27 @@
       "review": {
         "reviewedMajor": 3
       }
+    },
+    {
+      "id": "use-grok",
+      "repository": "toolboxmd/use-grok",
+      "kind": "agent-module",
+      "projectRecordPath": ".toolboxmd/project.json",
+      "deliveryProfilePath": ".toolboxmd/delivery.json",
+      "distribution": {
+        "type": "marketplace",
+        "repository": "toolboxmd/marketplace",
+        "recordPath": "catalog.json",
+        "catalogPath": "catalog.json"
+      },
+      "website": {
+        "repository": "toolboxmd/use-grok",
+        "baseUrl": "https://github.com",
+        "route": "/toolboxmd/use-grok"
+      },
+      "review": {
+        "reviewedMajor": 0
+      }
     }
   ]
 }
