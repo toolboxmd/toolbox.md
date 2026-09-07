@@ -18,6 +18,7 @@ from site_pipeline import (  # noqa: E402
     build_site,
     extract_codex_install_commands,
     parse_skill_frontmatter,
+    render_source_markdown,
     released_source_hint,
     live_status,
     safe_file,
@@ -257,6 +258,64 @@ class SitePipelineTest(unittest.TestCase):
             marketplace_root=self.marketplace,
             output_root=output or self.output,
         )
+
+    def _declare_opencode(self, content: str) -> None:
+        """Publish new exact local fixture identities with a declared guide."""
+        (self.agentsmd / "docs/opencode.md").write_text(content, encoding="utf-8")
+        record_path = self.agentsmd / ".toolboxmd/project.json"
+        record = json.loads(record_path.read_text())
+        record["factSources"]["documentation"].append("docs/opencode.md")
+        write_json(record_path, record)
+        git(self.agentsmd, "tag", "-d", "v8.6.1")
+        self.agentsmd_sha = self._commit_and_tag(self.agentsmd, "v8.6.1")
+        git(self.marketplace, "tag", "-d", "v1.2.6")
+        self._make_marketplace()
+
+    def test_opencode_guide_is_source_grounded_and_linked_to_exact_release(self) -> None:
+        # Exact source: AgentsMD 4ffe78481f94a3b61416a2583ef04d21928c6aa5.
+        guide = (ROOT / "tests/fixtures/opencode.md").read_text()
+        # Deliberately vary mutable source facts to catch copied website values.
+        guide = guide.replace("1.18.29", "9.87.65").replace("agentsmd-opencode", "future-adapter")
+        self._declare_opencode(guide)
+        receipt = self.build()
+        page = (self.output / "agentsmd/index.html").read_text()
+        self.assertIn("OpenCode CLI", page)
+        self.assertIn("9.87.65", page)
+        self.assertNotIn("1.18.29", page)
+        self.assertIn("future-adapter", page)
+        self.assertNotIn("agentsmd-opencode", page)
+        self.assertIn("~/.agents/skills/", page)
+        self.assertIn("$XDG_CONFIG_HOME/opencode/AGENTS.md", page)
+        self.assertIn("outside plugin caches", page)
+        self.assertIn("does not reproduce Codex app-native", page)
+        self.assertIn(f"blob/{self.agentsmd_sha}/docs/opencode.md", page)
+        self.assertIn("docs/opencode.md", [source["path"] for source in receipt["documentation"]["sources"]])
+
+    def test_undeclared_opencode_file_does_not_claim_support(self) -> None:
+        (self.agentsmd / "docs/opencode.md").write_text(
+            (ROOT / "tests/fixtures/opencode.md").read_text()
+        )
+        self.build()
+        page = (self.output / "agentsmd/index.html").read_text()
+        self.assertNotIn("OpenCode", page)
+
+    def test_host_documentation_cannot_inject_html_or_unsafe_links(self) -> None:
+        rendered = render_source_markdown(
+            '<script>alert(1)</script> [unsafe](javascript:alert) '
+            '[rules](https://opencode.ai/docs/rules/)\n\n```sh\necho "<unsafe>"\n```'
+        )
+        self.assertNotIn("<script>", rendered)
+        self.assertNotIn('href="javascript:', rendered)
+        self.assertIn('href="https://opencode.ai/docs/rules/"', rendered)
+        self.assertIn("&lt;unsafe&gt;", rendered)
+
+    def test_declared_invalid_opencode_guide_preserves_previous_output(self) -> None:
+        self.build()
+        original = (self.output / "agentsmd/index.html").read_bytes()
+        self._declare_opencode("# OpenCode host\n\nIncomplete source.\n\n## Setup\nUnknown.\n")
+        with self.assertRaisesRegex(PipelineError, "missing a required section"):
+            self.build()
+        self.assertEqual(original, (self.output / "agentsmd/index.html").read_bytes())
 
     def test_build_resolves_exact_release_and_generates_discovery(self) -> None:
         receipt = self.build()
