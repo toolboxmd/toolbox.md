@@ -26,6 +26,10 @@ from string import Template
 from typing import Any
 
 
+# Keep helper imports and CLI exception identity on the same module instance.
+if __name__ == "__main__":
+    sys.modules["site_pipeline"] = sys.modules[__name__]
+
 REGISTRY_SCHEMA = "https://toolbox.md/schemas/project-registry-v1.schema.json"
 RECEIPT_SCHEMA = "https://toolbox.md/schemas/website-parity-receipt-v1.schema.json"
 DISCOVERY_SCHEMA = "https://schemas.agentskills.io/discovery/0.2.0/schema.json"
@@ -899,6 +903,8 @@ def write_site_manifest(output: Path, receipt: dict[str, Any]) -> dict[str, Any]
         ],
         "files": site_files(output),
     }
+    for app in receipt.get("apps", []):
+        manifest["projects"].append({"id": app["project"], **app["identity"]})
     write_json(output / "site-manifest.json", manifest)
     receipt["website"]["manifestSha256"] = sha256_file(output / "site-manifest.json")
     return manifest
@@ -992,6 +998,11 @@ def validate_output(output: Path, receipt: dict[str, Any]) -> dict[str, Any]:
         parsed = urllib.parse.urlparse(url)
         if parsed.scheme != "https" or not parsed.netloc:
             raise PipelineError(f"Website Parity Receipt contains a non-HTTPS public link: {url}")
+    for app in receipt.get("apps", []):
+        import gitpix_pipeline
+        gitpix_pipeline.validate_public(output, app)
+        if {"id": app["project"], **app["identity"]} not in manifest["projects"]:
+            raise PipelineError("GitPix whole-site manifest identity mismatch")
     return {"files": len(expected_files), "skills": len(skills), "state": "valid"}
 
 
@@ -1022,6 +1033,8 @@ def build_site(
     agentsmd_root: Path,
     marketplace_root: Path,
     output_root: Path,
+    gitpix_root: Path | None = None,
+    gitpix_inputs: Path | None = None,
 ) -> dict[str, Any]:
     project_root = project_root.resolve()
     agentsmd_root = agentsmd_root.resolve()
@@ -1035,6 +1048,13 @@ def build_site(
     toolbox_sha = run_git(project_root, "rev-parse", "HEAD")
     assert toolbox_sha is not None
     receipt = build_receipt(resolved, toolbox_sha)
+    apps = [p for p in registry["projects"] if p["id"] == "gitpix"]
+    gitpix = None
+    if apps:
+        if gitpix_root is None or gitpix_inputs is None:
+            raise PipelineError("GitPix mapping requires exact released source and verified activation inputs; publication preserved")
+        import gitpix_pipeline
+        gitpix = gitpix_pipeline.resolve(apps[0], gitpix_root.resolve(), read_json(gitpix_inputs))
 
     output_root.parent.mkdir(parents=True, exist_ok=True)
     candidate = Path(
@@ -1081,6 +1101,10 @@ def build_site(
             "</urlset>\n",
             encoding="utf-8",
         )
+        if gitpix is not None:
+            evidence_path = project_root / ".toolboxmd/evidence/gitpix-pilot.json"
+            evidence = read_json(evidence_path) if evidence_path.exists() else None
+            receipt["apps"] = [gitpix_pipeline.render(candidate, project_root, gitpix, evidence)]
         write_site_manifest(candidate, receipt)
         validate_output(candidate, receipt)
         promote_candidate(candidate, output_root)
@@ -1165,6 +1189,14 @@ def verify_live(
         ("robots.txt", "/robots.txt", "robots.txt", "text/plain"),
         ("sitemap.xml", "/sitemap.xml", "sitemap.xml", "application/xml"),
     ]
+    if candidate_receipt.get("apps"):
+        endpoints.extend([
+            ("GitPix canonical page", "/gitpix", "gitpix/index.html", "text/html"),
+            ("GitPix OpenAPI", "/gitpix/openapi.json", "gitpix/openapi.json", "application/json"),
+            ("GitPix API prose", "/gitpix/llms.txt", "gitpix/llms.txt", "text/plain"),
+            ("GitPix release identity", "/gitpix/release.json", "gitpix/release.json", "application/json"),
+            ("GitPix parity receipt", "/gitpix/parity.json", "gitpix/parity.json", "application/json"),
+        ])
     fetched: dict[str, bytes] = {}
     for name, route, local_path, expected_type in endpoints:
         body, content_type, final_url = fetch_url(base_url.rstrip("/") + route)
@@ -1249,6 +1281,9 @@ def verify_live(
         "runUrl": run_url or None,
         "checks": checks,
     }
+    for app in receipt.get("apps", []):
+        app["states"]["websitePublication"] = {"state": receipt["websiteDeployment"]["state"], "deploymentUrl": deployment_url or None}
+        app["states"]["websiteVerification"] = {"state": "passed", "observedAt": receipt["liveVerification"]["observedAt"], "runUrl": run_url or None}
     return receipt
 
 
@@ -1285,6 +1320,8 @@ def main(argv: list[str] | None = None) -> int:
     build.add_argument("--marketplace-root", type=Path, required=True)
     build.add_argument("--output", type=Path, required=True)
     build.add_argument("--receipt", type=Path)
+    build.add_argument("--gitpix-root", type=Path)
+    build.add_argument("--gitpix-inputs", type=Path)
 
     resolve = subparsers.add_parser(
         "release-inputs", help="Read the exact Project release hint from Marketplace"
@@ -1323,6 +1360,8 @@ def main(argv: list[str] | None = None) -> int:
                 agentsmd_root=args.agentsmd_root,
                 marketplace_root=args.marketplace_root,
                 output_root=args.output,
+                gitpix_root=args.gitpix_root,
+                gitpix_inputs=args.gitpix_inputs,
             )
             if args.receipt:
                 write_json(args.receipt, receipt)
@@ -1366,8 +1405,8 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({"state": receipt["state"], "checks": len(receipt["liveVerification"]["checks"])}, sort_keys=True))
         else:
             raise PipelineError(f"Unsupported command: {args.command}")
-    except PipelineError as error:
-        print(f"website parity error: {error}", file=sys.stderr)
+    except (PipelineError, ValueError, KeyError, TypeError, OSError) as error:
+        print(json.dumps({"state": "blocked", "stage": args.command, "reason": str(error)}), file=sys.stderr)
         return 1
     return 0
 

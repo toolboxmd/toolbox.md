@@ -1,0 +1,141 @@
+{
+  "schema": 1,
+  "project": "gitpix",
+  "identity": {
+    "version": "3.1.4",
+    "apiVersion": "2.3.0",
+    "sourceSha": "18bbf93b5c21b4c8ad0071e3e42fb9ed2dda1a2e",
+    "payloadSha256": "a0b8f667a1248ee2c70d2ccdd9e6b4c8dfea141795fceade02efc567dd783bdb"
+  },
+  "states": {
+    "implementation": {
+      "state": "passed",
+      "issue": "https://github.com/toolboxmd/gitpix/issues/30",
+      "pullRequest": "https://github.com/toolboxmd/gitpix/pull/31",
+      "headSha": "bd38db3bbd422d186c489ed65a6f4dc67924e6fb"
+    },
+    "proof": {
+      "state": "passed",
+      "source": "GitHub-hosted full gate and immutable artifact verification",
+      "url": "https://github.com/toolboxmd/gitpix/actions/runs/34143243661"
+    },
+    "review": {
+      "state": "passed",
+      "identity": "Independent Codex Luna maximum reasoning Standards and Spec reviews",
+      "headSha": "bd38db3bbd422d186c489ed65a6f4dc67924e6fb",
+      "url": "https://github.com/toolboxmd/gitpix/pull/31#pullrequestreview-5133967420"
+    },
+    "merge": {
+      "state": "passed",
+      "sourceSha": "18bbf93b5c21b4c8ad0071e3e42fb9ed2dda1a2e",
+      "observedAt": "2026-09-07T16:26:04Z",
+      "url": "https://github.com/toolboxmd/gitpix/pull/31"
+    },
+    "rollback": {
+      "state": "passed",
+      "observedAt": "2026-09-07T16:43:27Z",
+      "controlledFailure": {
+        "runId": 34143612443,
+        "runAttempt": 2,
+        "completedAt": "2026-09-07T16:32:49Z",
+        "syntheticHttpStatus": 599,
+        "restoredVersion": "3.1.3",
+        "restoredHealthStatus": 200
+      },
+      "recovery": {
+        "state": "passed",
+        "version": "3.1.4",
+        "completedAt": "2026-09-07T16:33:20Z",
+        "httpStatus": 200
+      },
+      "idempotency": {
+        "state": "passed",
+        "runAttempt": 3,
+        "completedAt": "2026-09-07T16:33:47Z",
+        "switched": false,
+        "restarted": false
+      }
+    },
+    "applicationLiveVerification": {
+      "state": "passed",
+      "observedAt": "2026-09-07T16:56:50Z",
+      "target": "https://gitpix.toolbox.md/",
+      "verificationPath": "Cloudflare Access authenticated production browser session through the public root and real API routes",
+      "integrations": {
+        "googleGemini": {
+          "state": "passed",
+          "generation": {"model": "gemini-3-pro-image-preview", "observedAt": "2026-09-07T16:46:02.212Z", "verification": "Successful visible and persisted generation with R2 retrieval; initial POST status was not captured.", "durationMs": 21398, "images": 1},
+          "edit": {"model": "gemini-3.1-flash-image-preview", "observedAt": "2026-09-07T16:48:47.755Z", "httpStatus": 200, "durationMs": 10519, "historyCount": 2, "lastAiImageIncluded": true, "images": 1}
+        },
+        "openaiGeneration": {
+          "state": "passed",
+          "model": "gpt-image-1.5",
+          "observedAt": "2026-09-07T16:51:29.949Z",
+          "httpStatus": 200,
+          "durationMs": 22700,
+          "historyCount": 0,
+          "lastAiImageIncluded": false,
+          "images": 1
+        },
+        "openaiEdit": {
+          "state": "passed",
+          "model": "gpt-image-1.5",
+          "observedAt": "2026-09-07T16:52:44.126Z",
+          "httpStatus": 200,
+          "durationMs": 19268,
+          "historyCount": 2,
+          "lastAiImageIncluded": true,
+          "images": 1
+        },
+        "replicateUpscale": {
+          "state": "passed",
+          "model": "nightmareai/real-esrgan",
+          "httpStatus": 200,
+          "durationMs": 11318,
+          "scale": 2
+        },
+        "r2ImageDelivery": {
+          "state": "passed",
+          "origin": "https://img.toolbox.md",
+          "httpStatus": 200,
+          "verifiedImages": 5
+        }
+      },
+      "persistence": {
+        "state": "passed",
+        "observedAt": "2026-09-07T16:56:50Z",
+        "verification": "Full public-root reload and sidebar reopen restored each Google and OpenAI conversation with four messages and two images. Google retained stable Pro/Flash identities. Existing OpenAI 2x output reopened by GET without a new generation or upscale POST."
+      }
+    },
+    "documentation": {
+      "state": "passed",
+      "projectVersion": "3.1.4",
+      "apiVersion": "2.3.0",
+      "sourceDocMismatch": false,
+      "verificationPath": "Activated production origin through the existing host access path",
+      "observedAt": "2026-09-07T16:48:32Z",
+      "openapiSha256": "fb305e0f1a0effd42063834a5ac184bcd888da984ac909f815af8bf82284dafd",
+      "llmsSha256": "e48d8f703d91960238f88faa2c95a3ed965c9dd83a38278790d6a16ab4fbd423",
+      "reason": "Served OpenAPI and llms.txt match the exact released source bytes. The API changelog describes the supported root-page/sidebar navigation and distinguishes the conversation API resource."
+    }
+  },
+  "evidence": [
+    {
+      "name": "Controlled rollback receipt",
+      "url": "https://github.com/toolboxmd/gitpix/actions/runs/34143612443/attempts/2"
+    },
+    {
+      "name": "Recovery receipt",
+      "url": "https://github.com/toolboxmd/gitpix/issues/8#issuecomment-5573692959"
+    },
+    {
+      "name": "Final idempotent activation receipt ZIP",
+      "url": "https://github.com/toolboxmd/gitpix/actions/runs/34143612443/attempts/3",
+      "sha256": "08bdd60c63a0109288943ec62297c4c626894f747600d1561e7521937fd6cef4"
+    },
+    {
+      "name": "Independent host status and authenticated application Live Verification",
+      "url": "https://github.com/toolboxmd/gitpix/issues/8#issuecomment-5573692959"
+    }
+  ]
+}

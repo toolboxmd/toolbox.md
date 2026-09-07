@@ -32,7 +32,8 @@
     "discovery": {"$ref": "#/$defs/discovery"},
     "websiteDeployment": {"$ref": "#/$defs/websiteDeployment"},
     "liveVerification": {"$ref": "#/$defs/liveVerification"},
-    "seoImpact": {"$ref": "#/$defs/seoImpact"}
+    "seoImpact": {"$ref": "#/$defs/seoImpact"},
+    "apps": {"type": "array", "maxItems": 1, "items": {"$ref": "https://toolbox.md/schemas/app-website-parity-receipt-v1.schema.json"}}
   },
   "allOf": [
     {
