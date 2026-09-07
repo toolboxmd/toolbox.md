@@ -6,9 +6,10 @@ on:
       - .github/workflows/website-parity.yml
       - .toolboxmd/projects.json
       - schemas/**
-      - scripts/site_pipeline.py
+      - scripts/*.py
+      - .toolboxmd/evidence/**
       - templates/**
-      - tests/test_site_pipeline.py
+      - tests/**
       - index.html
       - ascii.json
       - hand-left.json
@@ -20,8 +21,10 @@ on:
       - .github/workflows/website-parity.yml
       - .toolboxmd/projects.json
       - schemas/**
-      - scripts/site_pipeline.py
+      - scripts/*.py
+      - .toolboxmd/evidence/**
       - templates/**
+      - tests/**
       - index.html
       - ascii.json
       - hand-left.json
@@ -33,14 +36,35 @@ on:
 
 permissions:
   contents: read
-  deployments: write
 
 concurrency:
   group: toolbox-website-parity-production
   cancel-in-progress: false
 
 jobs:
+  tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out test source without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.13"
+      - name: Run deterministic complete pipeline tests
+        run: python3 -m unittest discover -s tests -v
+
   website-parity:
+    needs: tests
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    environment: production
+    permissions:
+      contents: read
+      deployments: write
     runs-on: ubuntu-latest
     steps:
       - name: Check out the exact toolbox.md candidate
@@ -55,7 +79,7 @@ jobs:
           python-version: "3.13"
 
       - name: Run deterministic website pipeline tests
-        run: python3 -m unittest tests.test_site_pipeline -v
+        run: python3 -m unittest discover -s tests -v
 
       - name: Resolve the latest published Marketplace release
         id: marketplace
@@ -94,6 +118,25 @@ jobs:
           path: .inputs/agentsmd
           persist-credentials: false
 
+      - name: Resolve the exact successful GitPix activation
+        id: gitpix
+        env:
+          GH_TOKEN: ${{ secrets.GITPIX_RELEASE_READ_TOKEN }}
+        run: |
+          python3 scripts/gitpix_pipeline.py fetch-inputs \
+            --output .inputs/gitpix-release.json \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Check out the exact released GitPix source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          repository: toolboxmd/gitpix
+          ref: ${{ steps.gitpix.outputs.source_sha }}
+          token: ${{ secrets.GITPIX_RELEASE_READ_TOKEN }}
+          fetch-depth: 0
+          path: .inputs/gitpix
+          persist-credentials: false
+
       - name: Build and validate the isolated Website Candidate
         id: build
         run: |
@@ -101,6 +144,8 @@ jobs:
             --project-root . \
             --agentsmd-root .inputs/agentsmd \
             --marketplace-root .inputs/marketplace \
+            --gitpix-root .inputs/gitpix \
+            --gitpix-inputs .inputs/gitpix-release.json \
             --output dist/site \
             --receipt dist/website-parity-candidate.json
 
@@ -112,19 +157,23 @@ jobs:
         run: |
           agentsmd_state="$(gh api repos/toolboxmd/agentsmd/issues/57 --jq .state)"
           marketplace_state="$(gh api repos/toolboxmd/marketplace/issues/17 --jq .state)"
+          gitpix_state="$(gh api repos/toolboxmd/toolbox.md/issues/16 --jq .state)"
+          gitpix_ready="$(python3 scripts/gitpix_pipeline.py publication-gate --receipt dist/website-parity-candidate.json --pilot-state "$gitpix_state")"
           ready=false
-          if test "$agentsmd_state" = closed && test "$marketplace_state" = closed; then
+          if test "$agentsmd_state" = closed && test "$marketplace_state" = closed && test "$gitpix_ready" = true; then
             ready=true
           fi
           {
             printf 'ready=%s\n' "$ready"
             printf 'agentsmd=%s\n' "$agentsmd_state"
             printf 'marketplace=%s\n' "$marketplace_state"
+            printf 'gitpix=%s\n' "$gitpix_ready"
           } >> "$GITHUB_OUTPUT"
           {
             printf '### Pilot gates\n\n'
             printf -- '- toolboxmd/agentsmd#57: `%s`\n' "$agentsmd_state"
             printf -- '- toolboxmd/marketplace#17: `%s`\n' "$marketplace_state"
+            printf -- '- toolboxmd/toolbox.md#16: `%s`; GitPix publication ready: `%s`\n' "$gitpix_state" "$gitpix_ready"
             printf -- '- production eligible: `%s`\n' "$ready"
           } >> "$GITHUB_STEP_SUMMARY"
 

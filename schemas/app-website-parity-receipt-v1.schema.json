@@ -1,0 +1,569 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://toolbox.md/schemas/app-website-parity-receipt-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema",
+    "project",
+    "identity",
+    "states",
+    "operationalEvidence",
+    "documentation",
+    "provenance"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://toolbox.md/schemas/app-website-parity-receipt-v1.schema.json"
+    },
+    "schema": {
+      "const": 1
+    },
+    "project": {
+      "const": "gitpix"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "apiVersion",
+        "sourceSha",
+        "payloadSha256"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "apiVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "sourceSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "payloadSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "states": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implementation",
+        "proof",
+        "review",
+        "merge",
+        "rollback",
+        "applicationLiveVerification",
+        "release",
+        "artifact",
+        "deployment",
+        "activation",
+        "health",
+        "documentation",
+        "websitePublication",
+        "websiteVerification",
+        "seo"
+      ],
+      "properties": {
+        "implementation": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "proof": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "review": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "merge": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "rollback": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "applicationLiveVerification": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "release": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "artifact": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "deployment": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "activation": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "health": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "documentation": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "websitePublication": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "websiteVerification": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        },
+        "seo": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pending",
+                "unknown",
+                "passed",
+                "failed",
+                "blocked",
+                "published",
+                "verified",
+                "deployed",
+                "activated",
+                "idempotent",
+                "healthy",
+                "released",
+                "candidate",
+                "generated",
+                "current"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "operationalEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "sha256",
+        "sourcePath",
+        "references"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "matched",
+            "pending"
+          ]
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sourcePath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "/gitpix/openapi.json",
+        "/gitpix/llms.txt"
+      ],
+      "properties": {
+        "/gitpix/openapi.json": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "/gitpix/llms.txt": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "activationRunId",
+        "activationRunAttempt",
+        "receiptArtifact",
+        "manifestSha256"
+      ],
+      "properties": {
+        "repository": {
+          "const": "toolboxmd/gitpix"
+        },
+        "activationRunId": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "activationRunAttempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "receiptArtifact": {
+          "type": "object"
+        },
+        "manifestSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}

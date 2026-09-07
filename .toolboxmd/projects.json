@@ -22,6 +22,26 @@
       "review": {
         "reviewedMajor": 8
       }
+    },
+    {
+      "id": "gitpix",
+      "repository": "toolboxmd/gitpix",
+      "kind": "app",
+      "projectRecordPath": ".toolboxmd/project.json",
+      "deliveryProfilePath": ".toolboxmd/delivery.json",
+      "distribution": {
+        "type": "project-deployment",
+        "repository": "toolboxmd/gitpix",
+        "recordPath": ".github/workflows/activate-release.yml"
+      },
+      "website": {
+        "repository": "toolboxmd/toolbox.md",
+        "baseUrl": "https://toolbox.md",
+        "route": "/gitpix"
+      },
+      "review": {
+        "reviewedMajor": 3
+      }
     }
   ]
 }

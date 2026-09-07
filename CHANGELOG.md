@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.0] - 2026-09-07
+
+### Added
+
+- Generate GitPix website parity from verified released activation evidence
+
 ## [0.2.0] - 2026-09-04
 
 ### Added
